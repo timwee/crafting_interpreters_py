@@ -8,6 +8,9 @@ class TokenType(Enum):
     LEFT_PAREN = auto()
     RIGHT_PAREN = auto()
 
+    def __str__(self):
+        return self.name
+
 class Token:
     def __init__(self, type: TokenType, lexeme: str, value: Any):
         self.type = type
@@ -16,7 +19,7 @@ class Token:
 
     def __str__(self):
         value_str = str(self.value) if self.value is not None else "null"
-        return f"{self.type} {self.lexeme} {self.value}"
+        return f"{self.type} {self.lexeme} {value_str}"
     
     def __repr__(self):
         return self.__str__()
@@ -25,8 +28,8 @@ class Token:
         return len(self.lexeme)
     
 EOF = Token(TokenType.EOF, "", None)
-LPAREN = Token(TokenType.LEFT_PAREN, "(", None)
-RPAREN = Token(TokenType.RIGHT_PAREN, ")", None)
+LPAREN = Token(TokenType.LEFT_PAREN, "(", value=None)
+RPAREN = Token(TokenType.RIGHT_PAREN, ")", value=None)
 
 def next_token(file_contents: str, cur_idx: int) -> Token:
     if cur_idx >= len(file_contents):
@@ -50,6 +53,7 @@ def tokenize(file_contents):
         tok = next_token(file_contents, cur_idx)
         tokens.append(tok)
         cur_idx += len(tok)
+    tokens.append(EOF)
     return tokens
 
 def main():
