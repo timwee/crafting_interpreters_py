@@ -1,20 +1,56 @@
 import sys
 
+from enum import Enum, auto
+from typing import Any
+
+class TokenType(Enum):
+    EOF = auto()
+    LEFT_PAREN = auto()
+    RIGHT_PAREN = auto()
 
 class Token:
-    def __init__(self, type, lexeme, value):
+    def __init__(self, type: TokenType, lexeme: str, value: Any):
         self.type = type
         self.lexeme = lexeme
         self.value = value
 
     def __str__(self):
+        value_str = str(self.value) if self.value is not None else "null"
         return f"{self.type} {self.lexeme} {self.value}"
     
     def __repr__(self):
         return self.__str__()
+    
+    def __len__(self):
+        return len(self.lexeme)
+    
+EOF = Token(TokenType.EOF, "", None)
+LPAREN = Token(TokenType.LEFT_PAREN, "(", None)
+RPAREN = Token(TokenType.RIGHT_PAREN, ")", None)
+
+def next_token(file_contents: str, cur_idx: int) -> Token:
+    if cur_idx >= len(file_contents):
+        return EOF
+    
+    char = file_contents[cur_idx]
+
+    if char == "(":
+        return LPAREN
+    elif char == ")":
+        return RPAREN
+    else:
+        return EOF
 
 def tokenize(file_contents):
-    return []
+    cur_idx = 0
+    eof_idx = len(file_contents)
+    
+    tokens = []
+    while cur_idx < eof_idx:
+        tok = next_token(file_contents, cur_idx)
+        tokens.append(tok)
+        cur_idx += len(tok)
+    return tokens
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
