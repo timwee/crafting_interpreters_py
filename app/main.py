@@ -7,6 +7,8 @@ class TokenType(Enum):
     EOF = auto()
     LEFT_PAREN = auto()
     RIGHT_PAREN = auto()
+    LEFT_BRACE = auto()
+    RIGHT_BRACE = auto()
 
     def __str__(self):
         return self.name
@@ -30,6 +32,8 @@ class Token:
 EOF = Token(TokenType.EOF, "", None)
 LPAREN = Token(TokenType.LEFT_PAREN, "(", value=None)
 RPAREN = Token(TokenType.RIGHT_PAREN, ")", value=None)
+LBRACE = Token(TokenType.LEFT_BRACE, "{", value=None)
+RBRACE = Token(TokenType.RIGHT_BRACE, "}", value=None)
 
 def next_token(file_contents: str, cur_idx: int) -> Token:
     if cur_idx >= len(file_contents):
@@ -41,6 +45,10 @@ def next_token(file_contents: str, cur_idx: int) -> Token:
         return LPAREN
     elif char == ")":
         return RPAREN
+    elif char == "{":
+        return LBRACE
+    elif char == "}":
+        return RBRACE
     else:
         return EOF
 
