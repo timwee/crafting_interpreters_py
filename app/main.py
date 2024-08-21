@@ -1,6 +1,21 @@
 import sys
 
 
+class Token:
+    def __init__(self, type, lexeme, value):
+        self.type = type
+        self.lexeme = lexeme
+        self.value = value
+
+    def __str__(self):
+        return f"{self.type} {self.lexeme} {self.value}"
+    
+    def __repr__(self):
+        return self.__str__()
+
+def tokenize(file_contents):
+    return []
+
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!", file=sys.stderr)
@@ -21,7 +36,9 @@ def main():
 
     # Uncomment this block to pass the first stage
     if file_contents:
-        raise NotImplementedError("Scanner not implemented")
+        tokens = tokenize(file_contents)
+        for token in tokens:
+            print(token)
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
 
