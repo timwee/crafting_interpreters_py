@@ -4,12 +4,18 @@ from enum import Enum, auto
 from typing import Any
 
 class TokenType(Enum):
-    EOF = auto()
     LEFT_PAREN = auto()
-    RIGHT_PAREN = auto()
     LEFT_BRACE = auto()
+    DOT = auto()
+    COMMA = auto()
+    PLUS = auto()
+    STAR = auto()
+    MINUS = auto()
+    SEMICOLON = auto()
     RIGHT_BRACE = auto()
-
+    RIGHT_PAREN = auto()
+    EOF = auto()
+    
     def __str__(self):
         return self.name
 
@@ -34,6 +40,12 @@ LPAREN = Token(TokenType.LEFT_PAREN, "(", value=None)
 RPAREN = Token(TokenType.RIGHT_PAREN, ")", value=None)
 LBRACE = Token(TokenType.LEFT_BRACE, "{", value=None)
 RBRACE = Token(TokenType.RIGHT_BRACE, "}", value=None)
+DOT = Token(TokenType.DOT, ".", value=None)
+COMMA = Token(TokenType.COMMA, ",", value=None)
+PLUS = Token(TokenType.PLUS, "+", value=None)
+STAR = Token(TokenType.STAR, "*", value=None)
+MINUS = Token(TokenType.MINUS, "-", value=None)
+SEMICOLON = Token(TokenType.SEMICOLON, ";", value=None)
 
 def next_token(file_contents: str, cur_idx: int) -> Token:
     if cur_idx >= len(file_contents):
@@ -49,6 +61,18 @@ def next_token(file_contents: str, cur_idx: int) -> Token:
         return LBRACE
     elif char == "}":
         return RBRACE
+    elif char == ".":
+        return DOT
+    elif char == ",":
+        return COMMA
+    elif char == "+":
+        return PLUS
+    elif char == "-":
+        return MINUS
+    elif char == "*":
+        return STAR
+    elif char == ";":
+        return SEMICOLON
     else:
         return EOF
 
