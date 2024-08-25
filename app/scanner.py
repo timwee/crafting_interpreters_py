@@ -30,6 +30,7 @@ class TokenType(Enum):
     TAB = auto()
     NEWLINE = auto()
     STRING = auto()
+    NUMBER = auto()
     
     def __str__(self):
         return self.name
@@ -97,6 +98,22 @@ def parse_string(src_str: str, cur_idx: int, line_idx: int) -> Token:
     str_token = Token(type=TokenType.STRING, lexeme=lexeme, value=value, line=line_idx)
     return str_token
 
+def parse_number(src_str: str, cur_idx: int, line_idx: int) -> Token:
+    num_start_idx = cur_idx
+    num_end_idx = cur_idx + 1
+    dot_idx = -1
+    while num_end_idx < len(src_str) and (src_str[num_end_idx].isdigit() or src_str[num_end_idx] == "."):
+        if src_str[num_end_idx] == ".":
+            if dot_idx != -1:
+                raise Exception("Invalid number. Multiple dots in the number.")
+            dot_idx = num_end_idx
+        num_end_idx += 1
+    if dot_idx == num_end_idx - 1:
+        num_end_idx -= 1
+    lexeme = src_str[num_start_idx:num_end_idx]
+    value = float(lexeme)
+    return Token(type=TokenType.NUMBER, lexeme=lexeme, value=value, line=line_idx)
+
 def next_token(src_str: str, cur_idx: int, line_idx: int) -> Token:
     char = src_str[cur_idx]
     if char == "(":
@@ -152,6 +169,8 @@ def next_token(src_str: str, cur_idx: int, line_idx: int) -> Token:
         return NEWLINE(line=line_idx)
     elif char == '"':
         return parse_string(src_str, cur_idx, line_idx)
+    elif char.isdigit():
+        return parse_number(src_str, cur_idx, line_idx)
     else:
         # print(f"Unexpected character: {char}", file=sys.stderr)
         raise Exception(f"Unexpected character: {char}")
