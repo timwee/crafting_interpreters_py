@@ -16,6 +16,8 @@ class TokenType(Enum):
     SEMICOLON = auto()
     RIGHT_BRACE = auto()
     RIGHT_PAREN = auto()
+    EQUAL = auto()
+    EQUAL_EQUAL = auto()
     EOF = auto()
     
     def __str__(self):
@@ -51,9 +53,11 @@ PLUS = partial(Token, type=TokenType.PLUS, lexeme="+", value=None)
 STAR = partial(Token, type=TokenType.STAR, lexeme="*", value=None)
 MINUS = partial(Token, type=TokenType.MINUS, lexeme="-", value=None)
 SEMICOLON = partial(Token, type=TokenType.SEMICOLON, lexeme=";", value=None)
+EQUAL = partial(Token, type=TokenType.EQUAL, lexeme="=", value=None)
+EQUAL_EQUAL = partial(Token, type=TokenType.EQUAL_EQUAL, lexeme="==", value=None)
 
-def next_token(char: str, line_idx: int) -> Token:
-    
+def next_token(cur_line: str, cur_idx: int, line_idx: int) -> Token:
+    char = cur_line[cur_idx]
     if char == "(":
         return LPAREN(line=line_idx)
     elif char == ")":
@@ -74,8 +78,13 @@ def next_token(char: str, line_idx: int) -> Token:
         return STAR(line=line_idx)
     elif char == ";":
         return SEMICOLON(line=line_idx)
+    elif char == "=":
+        if cur_idx + 1 < len(cur_line) and cur_line[cur_idx + 1] == "=":
+            return EQUAL_EQUAL(line=line_idx)
+        else:
+            return EQUAL(line=line_idx)
     else:
-        print(f"Unexpected character: {char}", file=sys.stderr)
+        # print(f"Unexpected character: {char}", file=sys.stderr)
         raise Exception(f"Unexpected character: {char}")
 
 def tokenize(file_contents: str) -> (list[Token], bool):
@@ -83,13 +92,17 @@ def tokenize(file_contents: str) -> (list[Token], bool):
     has_error = False
     tokens = []
     for line_idx, line_str in enumerate(lines):
-        for cur_idx, chr in enumerate(line_str):
+        char_idx = 0
+        while char_idx < len(line_str):
             try:
-                tokens.append(next_token(chr, line_idx))
+                tok = next_token(line_str, char_idx, line_idx)
+                tokens.append(tok)
+                char_idx += len(tok)
             except Exception as e:
                 #print(e, file=sys.stderr)
-                print(f"[line {line_idx + 1}] Error: Unexpected character: {chr}", file=sys.stderr)
+                print(f"[line {line_idx + 1}] Error: Unexpected character: {line_str[char_idx]}", file=sys.stderr)
                 has_error = True
+                char_idx += 1
     tokens.append(EOF(line=line_idx))
     return tokens, has_error
 
