@@ -25,6 +25,8 @@ class TokenType(Enum):
     LESS_EQUAL = auto()
     GREATER = auto()
     GREATER_EQUAL = auto()
+    SLASH = auto()
+    SLASH_SLASH = auto()
     
     def __str__(self):
         return self.name
@@ -67,6 +69,8 @@ LESS = partial(Token, type=TokenType.LESS, lexeme="<", value=None)
 LESS_EQUAL = partial(Token, type=TokenType.LESS_EQUAL, lexeme="<=", value=None)
 GREATER = partial(Token, type=TokenType.GREATER, lexeme=">", value=None)
 GREATER_EQUAL = partial(Token, type=TokenType.GREATER_EQUAL, lexeme=">=", value=None)
+SLASH = partial(Token, type=TokenType.SLASH, lexeme="/", value=None)
+SLASH_SLASH = partial(Token, type=TokenType.SLASH_SLASH, lexeme="//", value=None)
 
 def next_token(cur_line: str, cur_idx: int, line_idx: int) -> Token:
     char = cur_line[cur_idx]
@@ -110,6 +114,11 @@ def next_token(cur_line: str, cur_idx: int, line_idx: int) -> Token:
             return GREATER_EQUAL(line=line_idx)
         else:
             return GREATER(line=line_idx)
+    elif char == "/":
+        if cur_idx + 1 < len(cur_line) and cur_line[cur_idx + 1] == "/":
+            return SLASH_SLASH(line=line_idx)
+        else:
+            return SLASH(line=line_idx)
     else:
         # print(f"Unexpected character: {char}", file=sys.stderr)
         raise Exception(f"Unexpected character: {char}")
@@ -123,8 +132,12 @@ def tokenize(file_contents: str) -> (list[Token], bool):
         while char_idx < len(line_str):
             try:
                 tok = next_token(line_str, char_idx, line_idx)
-                tokens.append(tok)
-                char_idx += len(tok)
+                if tok.type == TokenType.SLASH_SLASH:
+                    char_idx = len(line_str) # skip the rest of the line
+                    continue
+                else:
+                    tokens.append(tok)
+                    char_idx += len(tok)
             except Exception as e:
                 #print(e, file=sys.stderr)
                 print(f"[line {line_idx + 1}] Error: Unexpected character: {line_str[char_idx]}", file=sys.stderr)
