@@ -32,6 +32,22 @@ class TokenType(Enum):
     STRING = auto()
     NUMBER = auto()
     IDENTIFIER = auto()
+    AND = auto()
+    CLASS = auto()
+    ELSE = auto()
+    FALSE = auto()
+    FUN = auto()
+    FOR = auto()
+    IF = auto()
+    NIL = auto()
+    OR = auto()
+    PRINT = auto()
+    RETURN = auto()
+    SUPER = auto()
+    THIS = auto()
+    TRUE = auto()
+    VAR = auto()
+    WHILE = auto()
     
     def __str__(self):
         return self.name
@@ -79,6 +95,44 @@ SLASH_SLASH = partial(Token, type=TokenType.SLASH_SLASH, lexeme="//", value=None
 SPACE = partial(Token, type=TokenType.SPACE, lexeme=" ", value=None)
 TAB = partial(Token, type=TokenType.TAB, lexeme="\t", value=None)
 NEWLINE = partial(Token, type=TokenType.NEWLINE, lexeme="\n", value=None)
+AND = partial(Token, type=TokenType.AND, lexeme="and", value=None)
+CLASS = partial(Token, type=TokenType.CLASS, lexeme="class", value=None)
+ELSE = partial(Token, type=TokenType.ELSE, lexeme="else", value=None)
+FALSE = partial(Token, type=TokenType.FALSE, lexeme="false", value=None)    
+FUN = partial(Token, type=TokenType.FUN, lexeme="fun", value=None)
+FOR = partial(Token, type=TokenType.FOR, lexeme="for", value=None)
+IF = partial(Token, type=TokenType.IF, lexeme="if", value=None)
+NIL = partial(Token, type=TokenType.NIL, lexeme="nil", value=None)
+OR = partial(Token, type=TokenType.OR, lexeme="or", value=None)
+PRINT = partial(Token, type=TokenType.PRINT, lexeme="print", value=None)
+RETURN = partial(Token, type=TokenType.RETURN, lexeme="return", value=None)
+SUPER = partial(Token, type=TokenType.SUPER, lexeme="super", value=None)
+THIS = partial(Token, type=TokenType.THIS, lexeme="this", value=None)
+TRUE = partial(Token, type=TokenType.TRUE, lexeme="true", value=None)
+VAR = partial(Token, type=TokenType.VAR, lexeme="var", value=None)
+WHILE = partial(Token, type=TokenType.WHILE, lexeme="while", value=None)
+
+RESERVED_WORDS_MAP = {
+    "and": AND,
+    "class": CLASS,
+    "else": ELSE,
+    "false": FALSE,
+    "fun": FUN,
+    "for": FOR,
+    "if": IF,
+    "nil": NIL,
+    "or": OR,
+    "print": PRINT,
+    "return": RETURN,
+    "super": SUPER,
+    "this": THIS,
+    "true": TRUE,
+    "var": VAR,
+    "while": WHILE,
+}
+
+
+RESERVED_WORDS = RESERVED_WORDS_MAP.keys()
 
 
 class UnterminatedStringError(Exception):
@@ -122,6 +176,12 @@ def parse_identifier(src_str: str, cur_idx: int, line_idx: int) -> Token:
         id_end_idx += 1
     lexeme = src_str[id_start_idx:id_end_idx]
     return Token(type=TokenType.IDENTIFIER, lexeme=lexeme, value=None, line=line_idx)
+
+def matches_reserved_word(src_str: str, cur_idx: int, line_idx: int) -> str:
+    for word in RESERVED_WORDS:
+        if src_str[cur_idx:cur_idx+len(word)] == word:
+            return word
+    return ""
 
 def next_token(src_str: str, cur_idx: int, line_idx: int) -> Token:
     char = src_str[cur_idx]
@@ -180,9 +240,11 @@ def next_token(src_str: str, cur_idx: int, line_idx: int) -> Token:
         return parse_string(src_str, cur_idx, line_idx)
     elif char.isdigit():
         return parse_number(src_str, cur_idx, line_idx)
-    elif char.isalpha() or char == "_":
-        return parse_identifier(src_str, cur_idx, line_idx)
     else:
+        if (reserved_word := matches_reserved_word(src_str, cur_idx, line_idx)):
+            return RESERVED_WORDS_MAP[reserved_word](line=line_idx) 
+        elif char.isalpha() or char == "_":
+            return parse_identifier(src_str, cur_idx, line_idx)
         # print(f"Unexpected character: {char}", file=sys.stderr)
         raise Exception(f"Unexpected character: {char}")
 
