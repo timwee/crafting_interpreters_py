@@ -87,7 +87,7 @@ def tokenize(file_contents: str) -> (list[Token], bool):
             try:
                 tokens.append(next_token(chr, line_idx))
             except Exception as e:
-                print(e, file=sys.stderr)
+                #print(e, file=sys.stderr)
                 print(f"[line {line_idx + 1}] Error: Unexpected character: {chr}", file=sys.stderr)
                 has_error = True
     tokens.append(EOF(line=line_idx))
