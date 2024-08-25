@@ -27,6 +27,9 @@ class TokenType(Enum):
     GREATER_EQUAL = auto()
     SLASH = auto()
     SLASH_SLASH = auto()
+    SPACE = auto()
+    TAB = auto()
+    NEWLINE = auto()
     
     def __str__(self):
         return self.name
@@ -71,6 +74,9 @@ GREATER = partial(Token, type=TokenType.GREATER, lexeme=">", value=None)
 GREATER_EQUAL = partial(Token, type=TokenType.GREATER_EQUAL, lexeme=">=", value=None)
 SLASH = partial(Token, type=TokenType.SLASH, lexeme="/", value=None)
 SLASH_SLASH = partial(Token, type=TokenType.SLASH_SLASH, lexeme="//", value=None)
+SPACE = partial(Token, type=TokenType.SPACE, lexeme=" ", value=None)
+TAB = partial(Token, type=TokenType.TAB, lexeme="\t", value=None)
+NEWLINE = partial(Token, type=TokenType.NEWLINE, lexeme="\n", value=None)
 
 def next_token(cur_line: str, cur_idx: int, line_idx: int) -> Token:
     char = cur_line[cur_idx]
@@ -119,6 +125,12 @@ def next_token(cur_line: str, cur_idx: int, line_idx: int) -> Token:
             return SLASH_SLASH(line=line_idx)
         else:
             return SLASH(line=line_idx)
+    elif char == " ":
+        return SPACE(line=line_idx)
+    elif char == "\t":
+        return TAB(line=line_idx)
+    elif char == "\n":
+        return NEWLINE(line=line_idx)
     else:
         # print(f"Unexpected character: {char}", file=sys.stderr)
         raise Exception(f"Unexpected character: {char}")
@@ -136,7 +148,8 @@ def tokenize(file_contents: str) -> (list[Token], bool):
                     char_idx = len(line_str) # skip the rest of the line
                     continue
                 else:
-                    tokens.append(tok)
+                    if tok.type not in [TokenType.SPACE, TokenType.TAB, TokenType.NEWLINE]:
+                        tokens.append(tok)
                     char_idx += len(tok)
             except Exception as e:
                 #print(e, file=sys.stderr)
