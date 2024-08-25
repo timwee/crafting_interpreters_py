@@ -136,26 +136,29 @@ def next_token(cur_line: str, cur_idx: int, line_idx: int) -> Token:
         raise Exception(f"Unexpected character: {char}")
 
 def tokenize(file_contents: str) -> (list[Token], bool):
-    lines = file_contents.split("\n")
+    line_idx = 1
+    end_idx = len(file_contents)
     has_error = False
     tokens = []
-    for line_idx, line_str in enumerate(lines):
-        char_idx = 0
-        while char_idx < len(line_str):
-            try:
-                tok = next_token(line_str, char_idx, line_idx)
-                if tok.type == TokenType.SLASH_SLASH:
-                    char_idx = len(line_str) # skip the rest of the line
-                    continue
-                else:
-                    if tok.type not in [TokenType.SPACE, TokenType.TAB, TokenType.NEWLINE]:
-                        tokens.append(tok)
-                    char_idx += len(tok)
-            except Exception as e:
-                #print(e, file=sys.stderr)
-                print(f"[line {line_idx + 1}] Error: Unexpected character: {line_str[char_idx]}", file=sys.stderr)
-                has_error = True
-                char_idx += 1
+    char_idx = 0
+    while char_idx < end_idx:
+        try:
+            tok = next_token(file_contents, char_idx, line_idx)
+            if tok.type == TokenType.SLASH_SLASH:
+                while char_idx < end_idx and file_contents[char_idx] != "\n":
+                    char_idx += 1
+                continue
+            else:
+                if tok.type not in [TokenType.SPACE, TokenType.TAB, TokenType.NEWLINE]:
+                    tokens.append(tok)
+                char_idx += len(tok)
+                if tok.type == TokenType.NEWLINE:
+                    line_idx += 1
+        except Exception as e:
+            #print(e, file=sys.stderr)
+            print(f"[line {line_idx}] Error: Unexpected character: {file_contents[char_idx]}", file=sys.stderr)
+            has_error = True
+            char_idx += 1
     tokens.append(EOF(line=line_idx))
     return tokens, has_error
 
