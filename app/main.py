@@ -21,6 +21,10 @@ class TokenType(Enum):
     BANG = auto()
     BANG_EQUAL = auto()
     EOF = auto()
+    LESS = auto()
+    LESS_EQUAL = auto()
+    GREATER = auto()
+    GREATER_EQUAL = auto()
     
     def __str__(self):
         return self.name
@@ -59,6 +63,10 @@ EQUAL = partial(Token, type=TokenType.EQUAL, lexeme="=", value=None)
 EQUAL_EQUAL = partial(Token, type=TokenType.EQUAL_EQUAL, lexeme="==", value=None)
 BANG = partial(Token, type=TokenType.BANG, lexeme="!", value=None)
 BANG_EQUAL = partial(Token, type=TokenType.BANG_EQUAL, lexeme="!=", value=None)
+LESS = partial(Token, type=TokenType.LESS, lexeme="<", value=None)
+LESS_EQUAL = partial(Token, type=TokenType.LESS_EQUAL, lexeme="<=", value=None)
+GREATER = partial(Token, type=TokenType.GREATER, lexeme=">", value=None)
+GREATER_EQUAL = partial(Token, type=TokenType.GREATER_EQUAL, lexeme=">=", value=None)
 
 def next_token(cur_line: str, cur_idx: int, line_idx: int) -> Token:
     char = cur_line[cur_idx]
@@ -92,6 +100,16 @@ def next_token(cur_line: str, cur_idx: int, line_idx: int) -> Token:
             return BANG_EQUAL(line=line_idx)
         else:
             return BANG(line=line_idx)
+    elif char == "<":
+        if cur_idx + 1 < len(cur_line) and cur_line[cur_idx + 1] == "=":
+            return LESS_EQUAL(line=line_idx)
+        else:
+            return LESS(line=line_idx)
+    elif char == ">":
+        if cur_idx + 1 < len(cur_line) and cur_line[cur_idx + 1] == "=":
+            return GREATER_EQUAL(line=line_idx)
+        else:
+            return GREATER(line=line_idx)
     else:
         # print(f"Unexpected character: {char}", file=sys.stderr)
         raise Exception(f"Unexpected character: {char}")
