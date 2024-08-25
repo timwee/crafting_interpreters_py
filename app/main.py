@@ -2,6 +2,8 @@ import sys
 
 from enum import Enum, auto
 from typing import Any
+from functools import partial
+import sys
 
 class TokenType(Enum):
     LEFT_PAREN = auto()
@@ -20,13 +22,16 @@ class TokenType(Enum):
         return self.name
 
 class Token:
-    def __init__(self, type: TokenType, lexeme: str, value: Any):
+    def __init__(self, type: TokenType, lexeme: str, value: Any, line: int):
         self.type = type
         self.lexeme = lexeme
         self.value = value
+        self.line = line
 
     def __str__(self):
         value_str = str(self.value) if self.value is not None else "null"
+        if self.type == TokenType.EOF:
+            return f"{self.type} {self.lexeme} {value_str}"
         return f"{self.type} {self.lexeme} {value_str}"
     
     def __repr__(self):
@@ -35,58 +40,58 @@ class Token:
     def __len__(self):
         return len(self.lexeme)
     
-EOF = Token(TokenType.EOF, "", None)
-LPAREN = Token(TokenType.LEFT_PAREN, "(", value=None)
-RPAREN = Token(TokenType.RIGHT_PAREN, ")", value=None)
-LBRACE = Token(TokenType.LEFT_BRACE, "{", value=None)
-RBRACE = Token(TokenType.RIGHT_BRACE, "}", value=None)
-DOT = Token(TokenType.DOT, ".", value=None)
-COMMA = Token(TokenType.COMMA, ",", value=None)
-PLUS = Token(TokenType.PLUS, "+", value=None)
-STAR = Token(TokenType.STAR, "*", value=None)
-MINUS = Token(TokenType.MINUS, "-", value=None)
-SEMICOLON = Token(TokenType.SEMICOLON, ";", value=None)
+EOF = partial(Token, type=TokenType.EOF, lexeme="", value=None)
+LPAREN = partial(Token, type=TokenType.LEFT_PAREN, lexeme="(", value=None)
+RPAREN = partial(Token, type=TokenType.RIGHT_PAREN, lexeme=")", value=None)
+LBRACE = partial(Token, type=TokenType.LEFT_BRACE, lexeme="{", value=None)
+RBRACE = partial(Token, type=TokenType.RIGHT_BRACE, lexeme="}", value=None)
+DOT = partial(Token, type=TokenType.DOT, lexeme=".", value=None)
+COMMA = partial(Token, type=TokenType.COMMA, lexeme=",", value=None)
+PLUS = partial(Token, type=TokenType.PLUS, lexeme="+", value=None)
+STAR = partial(Token, type=TokenType.STAR, lexeme="*", value=None)
+MINUS = partial(Token, type=TokenType.MINUS, lexeme="-", value=None)
+SEMICOLON = partial(Token, type=TokenType.SEMICOLON, lexeme=";", value=None)
 
-def next_token(file_contents: str, cur_idx: int) -> Token:
-    if cur_idx >= len(file_contents):
-        return EOF
+def next_token(char: str, line_idx: int) -> Token:
     
-    char = file_contents[cur_idx]
-
     if char == "(":
-        return LPAREN
+        return LPAREN(line=line_idx)
     elif char == ")":
-        return RPAREN
+        return RPAREN(line=line_idx)
     elif char == "{":
-        return LBRACE
+        return LBRACE(line=line_idx)
     elif char == "}":
-        return RBRACE
+        return RBRACE(line=line_idx)
     elif char == ".":
-        return DOT
+        return DOT(line=line_idx)
     elif char == ",":
-        return COMMA
+        return COMMA(line=line_idx)
     elif char == "+":
-        return PLUS
+        return PLUS(line=line_idx)
     elif char == "-":
-        return MINUS
+        return MINUS(line=line_idx)
     elif char == "*":
-        return STAR
+        return STAR(line=line_idx)
     elif char == ";":
-        return SEMICOLON
+        return SEMICOLON(line=line_idx)
     else:
-        return EOF
+        print(f"Unexpected character: {char}", file=sys.stderr)
+        raise Exception(f"Unexpected character: {char}")
 
-def tokenize(file_contents):
-    cur_idx = 0
-    eof_idx = len(file_contents)
-    
+def tokenize(file_contents: str) -> (list[Token], bool):
+    lines = file_contents.split("\n")
+    has_error = False
     tokens = []
-    while cur_idx < eof_idx:
-        tok = next_token(file_contents, cur_idx)
-        tokens.append(tok)
-        cur_idx += len(tok)
-    tokens.append(EOF)
-    return tokens
+    for line_idx, line_str in enumerate(lines):
+        for cur_idx, chr in enumerate(line_str):
+            try:
+                tokens.append(next_token(chr, line_idx))
+            except Exception as e:
+                print(e, file=sys.stderr)
+                print(f"[line {line_idx + 1}] Error: Unexpected character: {chr}", file=sys.stderr)
+                has_error = True
+    tokens.append(EOF(line=line_idx))
+    return tokens, has_error
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -108,9 +113,11 @@ def main():
 
     # Uncomment this block to pass the first stage
     if file_contents:
-        tokens = tokenize(file_contents)
+        tokens, has_error = tokenize(file_contents)
         for token in tokens:
             print(token)
+        if has_error:
+            exit(65)
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
 
