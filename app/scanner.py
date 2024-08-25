@@ -31,6 +31,7 @@ class TokenType(Enum):
     NEWLINE = auto()
     STRING = auto()
     NUMBER = auto()
+    IDENTIFIER = auto()
     
     def __str__(self):
         return self.name
@@ -114,6 +115,14 @@ def parse_number(src_str: str, cur_idx: int, line_idx: int) -> Token:
     value = float(lexeme)
     return Token(type=TokenType.NUMBER, lexeme=lexeme, value=value, line=line_idx)
 
+def parse_identifier(src_str: str, cur_idx: int, line_idx: int) -> Token:
+    id_start_idx = cur_idx
+    id_end_idx = cur_idx + 1
+    while id_end_idx < len(src_str) and (src_str[id_end_idx].isalnum() or src_str[id_end_idx] == "_"):
+        id_end_idx += 1
+    lexeme = src_str[id_start_idx:id_end_idx]
+    return Token(type=TokenType.IDENTIFIER, lexeme=lexeme, value=None, line=line_idx)
+
 def next_token(src_str: str, cur_idx: int, line_idx: int) -> Token:
     char = src_str[cur_idx]
     if char == "(":
@@ -171,6 +180,8 @@ def next_token(src_str: str, cur_idx: int, line_idx: int) -> Token:
         return parse_string(src_str, cur_idx, line_idx)
     elif char.isdigit():
         return parse_number(src_str, cur_idx, line_idx)
+    elif char.isalpha() or char == "_":
+        return parse_identifier(src_str, cur_idx, line_idx)
     else:
         # print(f"Unexpected character: {char}", file=sys.stderr)
         raise Exception(f"Unexpected character: {char}")
