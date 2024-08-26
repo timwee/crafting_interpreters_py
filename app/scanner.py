@@ -179,7 +179,10 @@ def parse_identifier(src_str: str, cur_idx: int, line_idx: int) -> Token:
 
 def matches_reserved_word(src_str: str, cur_idx: int, line_idx: int) -> str:
     for word in RESERVED_WORDS:
-        if src_str[cur_idx:cur_idx+len(word)] == word:
+        # Handle identifiers that have reserved words as prefixes.
+        # ie: or vs orchid. Or is a reserved word, orchid is an identifier.
+        if src_str[cur_idx:cur_idx+len(word)] == word and \
+        (cur_idx + len(word) == len(src_str) or not src_str[cur_idx + len(word)].isalnum()):
             return word
     return ""
 
