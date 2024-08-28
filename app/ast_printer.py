@@ -23,3 +23,6 @@ class AstPrinter:
     
     def visitUnaryExpression(self, expression: Unary):
       return f'({expression.operator.lexeme} {self.print(expression.right)})'
+    
+    def visitBinaryExpression(self, expression: Binary):
+      return f'({expression.operator.lexeme} {self.print(expression.left)} {self.print(expression.right)})'
