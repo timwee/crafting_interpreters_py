@@ -1,4 +1,4 @@
-from app.parser import Expr, Literal, Grouping
+from app.parser import Expr, Literal, Grouping, Unary, Binary
 
 class AstPrinter:
     def print(self, expression: Expr):
@@ -20,3 +20,6 @@ class AstPrinter:
     
     def visitGroupingExpression(self, expression: Grouping):
       return f'(group {self.print(expression=expression.expr)})'
+    
+    def visitUnaryExpression(self, expression: Unary):
+      return f'({expression.operator.lexeme} {self.print(expression.right)})'
