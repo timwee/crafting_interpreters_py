@@ -19,6 +19,14 @@ def print_value(val: Any):
         else:
             print("false")
         return
+    elif isinstance(val, (float, int)):
+        # print(f'in print_val numeric: {val}')
+        str_val = str(val)
+        str_val = str_val.removesuffix(".0")
+        if "." in str_val:
+            str_val.removesuffix("0") 
+        print(str_val)
+        return
     else:
         print(val)
 
