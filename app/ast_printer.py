@@ -16,7 +16,7 @@ class AstPrinter:
             return "nil"
           
     def visit(self, expression: Expr):
-      return "expression"
+      return expression.accept(self)
     
     def visitGroupingExpression(self, expression: Grouping):
       return f'(group {self.print(expression=expression.expr)})'

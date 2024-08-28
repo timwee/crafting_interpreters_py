@@ -7,6 +7,20 @@ from functools import partial
 from app.scanner import tokenize
 from app.parser import Parser, Expr
 from app.ast_printer import AstPrinter
+from app.interpreter import Interpreter
+
+def print_value(val: Any):
+    if val is None:
+        print("nil")
+        return
+    if isinstance(val, bool):
+        if val:
+            print("true")
+        else:
+            print("false")
+        return
+    else:
+        print(val)
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -19,7 +33,7 @@ def main():
     command = sys.argv[1]
     filename = sys.argv[2]
 
-    if command not in ["tokenize", "parse"]:
+    if command not in ["tokenize", "parse", "evaluate"]:
         print(f"Unknown command: {command}", file=sys.stderr)
         exit(1)
 
@@ -32,15 +46,21 @@ def main():
         if command == "tokenize":
             for token in tokens:
                 print(token)
-        if command == "parse":
+        else:
             parser = Parser(tokens[:-1])
             exprs = parser.parse()
-            if exprs and len(exprs) > 0:
-                printer = AstPrinter()
-                # for expr in exprs:
-                print(printer.print(exprs[0]))
-            else:
-                exit(65)
+            has_error = (not exprs or len(exprs) <= 0)
+            if command == "parse":
+                if exprs and len(exprs) > 0:
+                    printer = AstPrinter()
+                    # for expr in exprs:
+                    print(printer.print(exprs[0]))
+                else:
+                    exit(65)
+            elif command == "evaluate":
+                interpreter = Interpreter()
+                result = interpreter.evaluate(exprs[0])
+                print_value(result)
             
         if has_error:
             exit(65)
