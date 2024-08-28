@@ -63,7 +63,6 @@ def main():
                 print(printer.print(expr), file=sys.stderr)
             if command == "parse":
                 if exprs and len(exprs) > 0:
-                    
                     # for expr in exprs:
                     print(printer.print(exprs[0]))
                 else:
