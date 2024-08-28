@@ -1,7 +1,7 @@
 from typing import Any
 from app.parser import Expr, Literal, Grouping, Unary, Binary
 from app.scanner import TokenType
-
+import sys
 
 class EvaluationError(Exception):
   def __init__(self, m):
@@ -35,12 +35,12 @@ class Interpreter:
     return left == right
   
   def _checkNumberOperand(self, operand: Any) -> bool:
-    if isinstance(operand, (int, float)):
+    if isinstance(operand, (float)):
       return True
     raise EvaluationError(f"{operand} must be a number")
   
   def _checkNumberOperands(self, left: Any, right: Any) -> bool:
-    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+    if isinstance(left, (float)) and isinstance(right, (float)):
       return True
     raise EvaluationError(f"both {left} and {right} must be a number")
     
@@ -90,6 +90,7 @@ class Interpreter:
     right = self.evaluate(expr.right)
     
     if expr.operator.type == TokenType.MINUS:
+      print(f"in visitUnary minus, right: {right}, {isinstance(right, (int, float))}", file=sys.stderr)
       self._checkNumberOperand(right)
       return -1 * (float(right))
     elif expr.operator.type == TokenType.BANG:

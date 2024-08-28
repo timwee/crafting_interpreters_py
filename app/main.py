@@ -57,10 +57,13 @@ def main():
         else:
             parser = Parser(tokens[:-1])
             exprs = parser.parse()
-            has_error = (not exprs or len(exprs) <= 0)
+            has_error = (not exprs or len(exprs) <= 0) 
+            printer = AstPrinter()
+            for expr in exprs:
+                print(printer.print(expr), file=sys.stderr)
             if command == "parse":
                 if exprs and len(exprs) > 0:
-                    printer = AstPrinter()
+                    
                     # for expr in exprs:
                     print(printer.print(exprs[0]))
                 else:
@@ -71,8 +74,8 @@ def main():
                     result = interpreter.evaluate(exprs[0])
                     print_value(result)
                 except EvaluationError:
-                    print("Operand must be a number")
-                    print('[line 1]')
+                    print("Operand must be a number", file=sys.stderr)
+                    print('[line 1]', file=sys.stderr)
                     exit(70)
             
         if has_error:
