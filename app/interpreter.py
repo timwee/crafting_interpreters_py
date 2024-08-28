@@ -23,7 +23,7 @@ class Interpreter:
       return val
     return True
   
-  def _isEqual(left: Any, right: Any) -> bool:
+  def _isEqual(self, left: Any, right: Any) -> bool:
     if left is None:
       return right is None
     return left == right
@@ -42,10 +42,10 @@ class Interpreter:
       return float(left) < float(right)
     elif operator_type == TokenType.LESS_EQUAL:
       return float(left) <= float(right)
-    elif operator_type == TokenType.EQUAL:
+    elif operator_type == TokenType.EQUAL_EQUAL:
       return self._isEqual(left, right)
     elif operator_type == TokenType.BANG_EQUAL:
-      return self._isEqual(left, right)
+      return not self._isEqual(left, right)
     elif operator_type == TokenType.MINUS:
       return float(left) - float(right)
     elif operator_type == TokenType.SLASH:
