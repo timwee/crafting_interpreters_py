@@ -5,8 +5,8 @@ from typing import Any
 from functools import partial
 
 from app.scanner import tokenize
-
-
+from app.parser import Parser, Expr
+from app.ast_printer import AstPrinter
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -19,7 +19,7 @@ def main():
     command = sys.argv[1]
     filename = sys.argv[2]
 
-    if command != "tokenize":
+    if command not in ["tokenize", "parse"]:
         print(f"Unknown command: {command}", file=sys.stderr)
         exit(1)
 
@@ -29,8 +29,18 @@ def main():
     # Uncomment this block to pass the first stage
     if file_contents:
         tokens, has_error = tokenize(file_contents)
-        for token in tokens:
-            print(token)
+        if command == "tokenize":
+            for token in tokens:
+                print(token)
+        if command == "parse":
+            parser = Parser(tokens[:-1])
+            exprs = parser.parse()
+            # for expr in exprs:
+            #     print(f"expr: {expr}")
+            printer = AstPrinter()
+            # for expr in exprs:
+            print(printer.print(exprs[0]))
+            
         if has_error:
             exit(65)
     else:
