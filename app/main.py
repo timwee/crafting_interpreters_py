@@ -7,7 +7,7 @@ from functools import partial
 from app.scanner import tokenize
 from app.parser import Parser, Expr
 from app.ast_printer import AstPrinter
-from app.interpreter import Interpreter
+from app.interpreter import Interpreter, EvaluationError
 
 def print_value(val: Any):
     if val is None:
@@ -67,8 +67,13 @@ def main():
                     exit(65)
             elif command == "evaluate":
                 interpreter = Interpreter()
-                result = interpreter.evaluate(exprs[0])
-                print_value(result)
+                try:
+                    result = interpreter.evaluate(exprs[0])
+                    print_value(result)
+                except EvaluationError:
+                    print("Operand must be a number")
+                    print('[line 1]')
+                    exit(70)
             
         if has_error:
             exit(65)
