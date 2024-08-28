@@ -1,4 +1,4 @@
-from app.parser import Expr, Literal
+from app.parser import Expr, Literal, Grouping
 
 class AstPrinter:
     def print(self, expression: Expr):
@@ -17,3 +17,6 @@ class AstPrinter:
           
     def visit(self, expression: Expr):
       return "expression"
+    
+    def visitGroupingExpression(self, expression: Grouping):
+      return f'(group {self.print(expression=expression.expr)})'
