@@ -37,12 +37,12 @@ class Interpreter:
   def _checkNumberOperand(self, operand: Any) -> bool:
     if isinstance(operand, (float)):
       return True
-    raise EvaluationError(f"{operand} must be a number")
+    raise EvaluationError(f"Operand must be a number")
   
   def _checkNumberOperands(self, left: Any, right: Any) -> bool:
     if isinstance(left, (float)) and isinstance(right, (float)):
       return True
-    raise EvaluationError(f"both {left} and {right} must be a number")
+    raise EvaluationError(f"Operands must be numbers")
     
   
   def visitBinaryExpression(self, expr: Binary):

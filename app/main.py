@@ -73,8 +73,8 @@ def main():
                 try:
                     result = interpreter.evaluate(exprs[0])
                     print_value(result)
-                except EvaluationError:
-                    print("Operand must be a number", file=sys.stderr)
+                except EvaluationError as e:
+                    print(e.message, file=sys.stderr)
                     print('[line 1]', file=sys.stderr)
                     exit(70)
             
