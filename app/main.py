@@ -29,6 +29,8 @@ def main():
     # Uncomment this block to pass the first stage
     if file_contents:
         tokens, has_error = tokenize(file_contents)
+        # for token in tokens:
+        #     print(token)
         if command == "tokenize":
             for token in tokens:
                 print(token)
