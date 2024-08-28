@@ -11,7 +11,6 @@ class Literal(Expr):
     self.value = value
     
   def accept(self, visitor):
-    # print("in accept literal", self.value)
     return visitor.visitLiteralExpression(self)
   
   def __str__(self):
@@ -60,7 +59,6 @@ class Parser:
         exprs = []
         while not self.is_at_end():
           new_expr = self.expression()
-          # print("new expr: ", new_expr)
           exprs.append(new_expr)
         return exprs
       except ParseError:

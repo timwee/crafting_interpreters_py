@@ -29,8 +29,6 @@ def main():
     # Uncomment this block to pass the first stage
     if file_contents:
         tokens, has_error = tokenize(file_contents)
-        # for token in tokens:
-        #     print(token)
         if command == "tokenize":
             for token in tokens:
                 print(token)
@@ -38,8 +36,6 @@ def main():
             parser = Parser(tokens[:-1])
             exprs = parser.parse()
             if exprs and len(exprs) > 0:
-                # for expr in exprs:
-                #     print(f"expr: {expr}")
                 printer = AstPrinter()
                 # for expr in exprs:
                 print(printer.print(exprs[0]))
