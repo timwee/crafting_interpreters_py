@@ -37,11 +37,14 @@ def main():
         if command == "parse":
             parser = Parser(tokens[:-1])
             exprs = parser.parse()
-            # for expr in exprs:
-            #     print(f"expr: {expr}")
-            printer = AstPrinter()
-            # for expr in exprs:
-            print(printer.print(exprs[0]))
+            if exprs and len(exprs) > 0:
+                # for expr in exprs:
+                #     print(f"expr: {expr}")
+                printer = AstPrinter()
+                # for expr in exprs:
+                print(printer.print(exprs[0]))
+            else:
+                exit(65)
             
         if has_error:
             exit(65)

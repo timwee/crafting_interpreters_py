@@ -56,12 +56,15 @@ class Parser:
       self.current = 0
 
     def parse(self):
-      exprs = []
-      while not self.is_at_end():
-        new_expr = self.expression()
-        # print("new expr: ", new_expr)
-        exprs.append(new_expr)
-      return exprs
+      try:
+        exprs = []
+        while not self.is_at_end():
+          new_expr = self.expression()
+          # print("new expr: ", new_expr)
+          exprs.append(new_expr)
+        return exprs
+      except ParseError:
+        return []
             
     def expression(self):
       return self.equality()
