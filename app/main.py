@@ -18,7 +18,7 @@ def main():
     print("Logs from your program will appear here!", file=sys.stderr)
 
     if len(sys.argv) < 3:
-        print("Usage: ./your_program.sh tokenize <filename>", file=sys.stderr)
+        print("Usage: ./your_program.sh <tokenize|parse|evaluate|run> <filename>", file=sys.stderr)
         exit(1)
 
     command = sys.argv[1]

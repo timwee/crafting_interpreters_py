@@ -27,6 +27,10 @@ class Interpreter:
     print(stringify(value))
     return None
   
+  def visitExpressionStatement(self, stmt: Expression):
+    self.evaluate(stmt.expr)
+    return None
+  
   def visit(self, expr: Expr):
     return expr.accept(self)
   
