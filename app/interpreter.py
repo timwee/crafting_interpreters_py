@@ -1,7 +1,8 @@
 from typing import Any
-from app.parser import Expr, Literal, Grouping, Unary, Binary
+from app.ast import Expr, Literal, Grouping, Unary, Binary, Print, Expression, Stmt
 from app.scanner import TokenType
 import sys
+from app.utils import stringify
 
 class EvaluationError(Exception):
   def __init__(self, m):
@@ -10,8 +11,21 @@ class EvaluationError(Exception):
       return self.message
 
 class Interpreter:
-  def evaluate(self, expr: Expr):
-    return expr.accept(self)
+  
+  def interpret(self, stmts: list[Stmt]):
+    try:
+      for stmt in stmts:
+        self.evaluate(stmt)
+    except EvaluationError as e:
+      raise e
+      
+  def evaluate(self, stmt: Stmt):
+    return stmt.accept(self)
+  
+  def visitPrintStatement(self, stmt: Print):
+    value = self.visit(stmt.expr)
+    print(stringify(value))
+    return None
   
   def visit(self, expr: Expr):
     return expr.accept(self)

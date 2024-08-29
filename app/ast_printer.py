@@ -1,4 +1,4 @@
-from app.parser import Expr, Literal, Grouping, Unary, Binary
+from app.ast import Expr, Literal, Grouping, Unary, Binary
 
 class AstPrinter:
     def print(self, expression: Expr):

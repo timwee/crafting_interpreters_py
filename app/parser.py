@@ -1,47 +1,7 @@
 from app.scanner import Token, TokenType
 from typing import Any
 import sys
-
-class Expr:
-  def accept(self, visitor):
-    return visitor.visit(self)
-
-class Literal(Expr):
-  def __init__(self, value: Any):
-    self.value = value
-    
-  def accept(self, visitor):
-    return visitor.visitLiteralExpression(self)
-  
-  def __str__(self):
-    return f'Literal: {self.value}'
-  
-  def __repr__(self):
-    return self.__str__()
-
-class Unary(Expr):
-  def __init__(self, operator: Token, right: Expr):
-    self.operator = operator
-    self.right = right
-    
-  def accept(self, visitor):
-    return visitor.visitUnaryExpression(self)
-      
-class Binary(Expr):
-  def __init__(self, left: Expr, operator: Token, right: Expr):
-    self.left = left
-    self.operator = operator
-    self.right = right
-    
-  def accept(self, visitor):
-    return visitor.visitBinaryExpression(self)
-    
-class Grouping(Expr):
-  def __init__(self, expr: Expr):
-    self.expr = expr
-    
-  def accept(self, visitor):
-    return visitor.visitGroupingExpression(self)
+from app.ast import Expr, Literal, Unary, Binary, Grouping, Print, Expression
 
 class ParseError(Exception):
   def __init__(self, m):
@@ -54,7 +14,16 @@ class Parser:
       self.tokens = tokens
       self.current = 0
 
-    def parse(self):
+    def parse_statements(self):
+      try:
+        statements = []
+        while not self.is_at_end():
+          statements.append(self.statement())
+        return statements
+      except ParseError as e:
+        raise e
+    
+    def parse_expressions(self):
       try:
         exprs = []
         while not self.is_at_end():
@@ -63,6 +32,21 @@ class Parser:
         return exprs
       except ParseError:
         return []
+      
+    def statement(self):
+      if self.match(TokenType.PRINT):
+        return self.print_statement()
+      return self.expression_statement()
+    
+    def print_statement(self):
+      value = self.expression()
+      self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+      return Print(value)
+    
+    def expression_statement(self):
+      expr = self.expression()
+      self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+      return Expression(expr)
             
     def expression(self):
       return self.equality()

@@ -5,30 +5,13 @@ from typing import Any
 from functools import partial
 
 from app.scanner import tokenize
-from app.parser import Parser, Expr
+from app.parser import Parser, ParseError
 from app.ast_printer import AstPrinter
 from app.interpreter import Interpreter, EvaluationError
+from app.utils import stringify
 
 def print_value(val: Any):
-    if val is None:
-        print("nil")
-        return
-    if isinstance(val, bool):
-        if val:
-            print("true")
-        else:
-            print("false")
-        return
-    elif isinstance(val, (float, int)):
-        # print(f'in print_val numeric: {val}')
-        str_val = str(val)
-        str_val = str_val.removesuffix(".0")
-        if "." in str_val:
-            str_val.removesuffix("0") 
-        print(str_val)
-        return
-    else:
-        print(val)
+    print(stringify(val))
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -41,7 +24,7 @@ def main():
     command = sys.argv[1]
     filename = sys.argv[2]
 
-    if command not in ["tokenize", "parse", "evaluate"]:
+    if command not in ["tokenize", "parse", "evaluate", "run"]:
         print(f"Unknown command: {command}", file=sys.stderr)
         exit(1)
 
@@ -55,23 +38,45 @@ def main():
             for token in tokens:
                 print(token)
         else:
-            parser = Parser(tokens[:-1])
-            exprs = parser.parse()
-            has_error = (not exprs or len(exprs) <= 0) 
-            printer = AstPrinter()
-            for expr in exprs:
-                print(printer.print(expr), file=sys.stderr)
+            
             if command == "parse":
-                if exprs and len(exprs) > 0:
-                    # for expr in exprs:
-                    print(printer.print(exprs[0]))
-                else:
-                    exit(65)
+                parser = Parser(tokens[:-1])
+                exprs = parser.parse_expressions()
+                has_error = (not exprs or len(exprs) <= 0) 
+                printer = AstPrinter()
+                for expr in exprs:
+                    print(printer.print(expr), file=sys.stderr)
+                    if exprs and len(exprs) > 0:
+                        # for expr in exprs:
+                        print(printer.print(exprs[0]))
+                    else:
+                        exit(65)
             elif command == "evaluate":
+                parser = Parser(tokens[:-1])
+                exprs = parser.parse_expressions()
+                has_error = (not exprs or len(exprs) <= 0) 
+                if has_error:
+                    exit(65)
                 interpreter = Interpreter()
                 try:
-                    result = interpreter.evaluate(exprs[0])
+                    result = interpreter.visit(exprs[0])
                     print_value(result)
+                except EvaluationError as e:
+                    print(e.message, file=sys.stderr)
+                    print('[line 1]', file=sys.stderr)
+                    exit(70)
+            elif command == "run":
+                # for token in tokens:
+                #     print(token)
+                try:
+                    parser = Parser(tokens[:-1])
+                    stmts = parser.parse_statements()
+                    interpreter = Interpreter()
+                    result = interpreter.interpret(stmts)
+                except ParseError as e:
+                    print(e.message, file=sys.stderr)
+                    print('[line 1]', file=sys.stderr)
+                    exit(65)
                 except EvaluationError as e:
                     print(e.message, file=sys.stderr)
                     print('[line 1]', file=sys.stderr)
