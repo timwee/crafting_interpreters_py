@@ -143,8 +143,8 @@ def parse_string(src_str: str, cur_idx: int, line_idx: int) -> Token:
     str_end_idx = cur_idx + 1
     max_idx = len(src_str)
     while str_end_idx < max_idx and src_str[str_end_idx] != '"':
-        if src_str[str_end_idx] == "\n":
-          raise UnterminatedStringError("Unterminated string. newline encountered in the string")
+        # if src_str[str_end_idx] == "\n":
+        #   raise UnterminatedStringError("Unterminated string. newline encountered in the string")
         str_end_idx += 1
     if str_end_idx >= max_idx:
         raise UnterminatedStringError("Unterminated string.")
