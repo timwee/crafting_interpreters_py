@@ -68,7 +68,7 @@ class Interpreter:
         value = None
         if stmt.initializer is not None:
             value = self.evaluate(stmt.initializer)
-            self.environment.define(stmt.name.lexeme, value)
+        self.environment.define(stmt.name.lexeme, value)
         return value
 
     def _isTruthy(self, val: Any) -> bool:
