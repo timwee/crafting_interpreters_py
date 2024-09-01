@@ -1,7 +1,17 @@
 from app.scanner import Token, TokenType
 from typing import Any
 import sys
-from app.ast import Expr, Literal, Unary, Binary, Grouping, Print, Expression
+from app.ast import (
+    Expr,
+    Literal,
+    Unary,
+    Binary,
+    Grouping,
+    Print,
+    Expression,
+    VariableDeclaration,
+    Variable,
+)
 
 
 class ParseError(Exception):
@@ -29,7 +39,7 @@ class Parser:
         try:
             statements = []
             while not self.is_at_end():
-                statements.append(self.statement())
+                statements.append(self.declaration())
             return statements
         except ParseError as e:
             raise e
@@ -43,6 +53,23 @@ class Parser:
             return exprs
         except ParseError:
             return []
+
+    def declaration(self):
+        try:
+            if self.match(TokenType.VAR):
+                return self.var_declaration()
+            return self.statement()
+        except ParseError as e:
+            self.synchronize()
+            raise e
+
+    def var_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+        initializer = None
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return VariableDeclaration(name, initializer)
 
     def statement(self):
         if self.match(TokenType.PRINT):
@@ -114,6 +141,8 @@ class Parser:
         elif self.match(TokenType.NUMBER, TokenType.STRING, TokenType.NIL):
             # print(f"in literal {self.previous().value}")
             return Literal(self.previous().value)
+        elif self.match(TokenType.IDENTIFIER):
+            return Variable(self.previous())
 
         if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
@@ -168,4 +197,5 @@ class Parser:
     def consume(self, type: TokenType, msg: str) -> Token:
         if self.check(type=type):
             return self.advance()
-        raise create_error(self.peek(), msg)
+        tok = self.previous() if self.is_at_end() else self.peek()
+        raise create_error(tok, msg)
