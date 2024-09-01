@@ -1,5 +1,6 @@
 from app.scanner import Token
 from typing import Any, Dict
+import sys
 
 
 class Environment:
@@ -14,11 +15,18 @@ class Environment:
         """Get the value of a variable."""
         if name.lexeme in self.values:
             return self.values[name.lexeme]
-        raise RuntimeError(f"Undefined variable '{name.lexeme}'.")
+        else:
+            msg = f"Undefined variable '{name.lexeme}'."
+            print(msg, file=sys.stderr)
+            print(f"[line {name.line}]", file=sys.stderr)
+            raise RuntimeError(msg)
 
     def assign(self, name: Token, value: Any) -> None:
         """Assign a new value to an existing variable."""
         if name.lexeme in self.values:
             self.values[name.lexeme] = value
         else:
-            raise RuntimeError(f"Undefined variable '{name.lexeme}'.")
+            msg = f"Undefined variable '{name.lexeme}'."
+            print(msg, file=sys.stderr)
+            print(f"[line {name.line}]", file=sys.stderr)
+            raise RuntimeError(msg)

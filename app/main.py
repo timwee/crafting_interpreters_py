@@ -10,15 +10,20 @@ from app.ast_printer import AstPrinter
 from app.interpreter import Interpreter, EvaluationError
 from app.utils import stringify
 
+
 def print_value(val: Any):
     print(stringify(val))
+
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!", file=sys.stderr)
 
     if len(sys.argv) < 3:
-        print("Usage: ./your_program.sh <tokenize|parse|evaluate|run> <filename>", file=sys.stderr)
+        print(
+            "Usage: ./your_program.sh <tokenize|parse|evaluate|run> <filename>",
+            file=sys.stderr,
+        )
         exit(1)
 
     command = sys.argv[1]
@@ -38,11 +43,11 @@ def main():
             for token in tokens:
                 print(token)
         else:
-            
+
             if command == "parse":
                 parser = Parser(tokens[:-1])
                 exprs = parser.parse_expressions()
-                has_error = (not exprs or len(exprs) <= 0) 
+                has_error = not exprs or len(exprs) <= 0
                 printer = AstPrinter()
                 for expr in exprs:
                     print(printer.print(expr), file=sys.stderr)
@@ -54,7 +59,7 @@ def main():
             elif command == "evaluate":
                 parser = Parser(tokens[:-1])
                 exprs = parser.parse_expressions()
-                has_error = (not exprs or len(exprs) <= 0) 
+                has_error = not exprs or len(exprs) <= 0
                 if has_error:
                     exit(65)
                 interpreter = Interpreter()
@@ -63,7 +68,7 @@ def main():
                     print_value(result)
                 except EvaluationError as e:
                     print(e.message, file=sys.stderr)
-                    print('[line 1]', file=sys.stderr)
+                    print("[line 1]", file=sys.stderr)
                     exit(70)
             elif command == "run":
                 # for token in tokens:
@@ -71,21 +76,28 @@ def main():
                 try:
                     parser = Parser(tokens[:-1])
                     stmts = parser.parse_statements()
-                    interpreter = Interpreter()
-                    result = interpreter.interpret(stmts)
+
                 except ParseError as e:
                     print(e.message, file=sys.stderr)
-                    print('[line 1]', file=sys.stderr)
+                    print("[line 1]", file=sys.stderr)
                     exit(65)
+
+                try:
+                    interpreter = Interpreter()
+                    result = interpreter.interpret(stmts)
                 except EvaluationError as e:
                     print(e.message, file=sys.stderr)
-                    print('[line 1]', file=sys.stderr)
+                    print("[line 1]", file=sys.stderr)
                     exit(70)
-            
+                except RuntimeError as e:
+                    exit(70)
+
         if has_error:
             exit(65)
     else:
-        print("EOF  null") # Placeholder, remove this line when implementing the scanner
+        print(
+            "EOF  null"
+        )  # Placeholder, remove this line when implementing the scanner
 
 
 if __name__ == "__main__":

@@ -31,13 +31,14 @@ class Interpreter:
         self.environment = Environment()
 
     def interpret(self, stmts: list[Stmt]):
-        try:
-            for stmt in stmts:
-                if not stmt:
-                    continue
-                self.evaluate(stmt)
-        except EvaluationError as e:
-            raise e
+        # try:
+        for stmt in stmts:
+            if not stmt:
+                continue
+            self.evaluate(stmt)
+
+    # except Exception as e:
+    #     raise e
 
     def evaluate(self, stmt: Stmt):
         return stmt.accept(self)
