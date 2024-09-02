@@ -10,11 +10,14 @@ from app.ast import (
     Stmt,
     Variable,
     VariableDeclaration,
+    Assignment,
 )
 from app.scanner import TokenType
 import sys
 from app.utils import stringify
 from app.environment import Environment
+import pprint
+from app.ast_printer import AstPrinter
 
 
 class EvaluationError(Exception):
@@ -32,7 +35,9 @@ class Interpreter:
 
     def interpret(self, stmts: list[Stmt]):
         # try:
+        printer = AstPrinter()
         for stmt in stmts:
+            print("in interpret:", printer.print(stmt), file=sys.stderr)
             if not stmt:
                 continue
             self.evaluate(stmt)
@@ -41,7 +46,16 @@ class Interpreter:
     #     raise e
 
     def evaluate(self, stmt: Stmt):
-        return stmt.accept(self)
+        if isinstance(stmt, Expr):
+            return self.visit(stmt)
+        elif isinstance(stmt, Print):
+            return self.visitPrintStatement(stmt)
+        elif isinstance(stmt, Expression):
+            return self.visitExpressionStatement(stmt)
+        elif isinstance(stmt, VariableDeclaration):
+            return self.visitVariableDeclaration(stmt)
+        else:
+            raise ValueError(f"Unexpected statement type: {type(stmt)}")
 
     def visitPrintStatement(self, stmt: Print):
         value = self.visit(stmt.expr)
@@ -52,8 +66,32 @@ class Interpreter:
         self.evaluate(stmt.expr)
         return None
 
+    def visitAssignmentExpression(self, expr: Assignment):
+        value = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
+
     def visit(self, expr: Expr):
-        return expr.accept(self)
+        if isinstance(expr, Literal):
+            return self.visitLiteralExpression(expr)
+        elif isinstance(expr, Grouping):
+            return self.visitGroupingExpression(expr)
+        elif isinstance(expr, Unary):
+            return self.visitUnaryExpression(expr)
+        elif isinstance(expr, Binary):
+            return self.visitBinaryExpression(expr)
+        elif isinstance(expr, Assignment):
+            return self.visitAssignmentExpression(expr)
+        elif isinstance(expr, Variable):
+            return self.visitVariableExpression(expr)
+        elif isinstance(expr, Expression):
+            return self.visitExpressionStatement(expr)
+        elif isinstance(expr, VariableDeclaration):
+            return self.visitVariableDeclaration(expr)
+        elif isinstance(expr, Print):
+            return self.visitPrintStatement(expr)
+        else:
+            raise ValueError(f"Unexpected expression type: {type(expr)}")
 
     def visitLiteralExpression(self, expr: Literal):
         return expr.value

@@ -1,5 +1,6 @@
 from typing import Any
 
+
 def stringify(val: Any):
     if val is None:
         return "nil"
@@ -13,7 +14,7 @@ def stringify(val: Any):
         str_val = str(val)
         str_val = str_val.removesuffix(".0")
         if "." in str_val:
-            str_val.removesuffix("0") 
+            str_val.removesuffix("0")
         return str_val
     else:
         return str(val)

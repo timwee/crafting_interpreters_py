@@ -43,6 +43,14 @@ class Print(Stmt):
 
 
 ##########################################################
+class Assignment(Expr):
+
+    def __init__(self, name: Token, value: Expr):
+        self.name = name
+        self.value = value
+
+        def accept(self, visitor):
+            return visitor.visitAssignmentExpression(self)
 
 
 class Variable(Expr):

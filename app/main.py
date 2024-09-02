@@ -71,12 +71,13 @@ def main():
                     print("[line 1]", file=sys.stderr)
                     exit(70)
             elif command == "run":
-                # for token in tokens:
-                #     print(token)
+                for token in tokens:
+                    print(token, file=sys.stderr)
                 try:
                     parser = Parser(tokens[:-1])
                     stmts = parser.parse_statements()
-
+                    # for stmt in stmts:
+                    #     print(printer.print(stmt), file=sys.stderr)
                 except ParseError as e:
                     print(e.message, file=sys.stderr)
                     print("[line 1]", file=sys.stderr)

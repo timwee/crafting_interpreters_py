@@ -11,6 +11,7 @@ from app.ast import (
     Expression,
     VariableDeclaration,
     Variable,
+    Assignment,
 )
 
 
@@ -87,7 +88,30 @@ class Parser:
         return Expression(expr)
 
     def expression(self):
-        return self.equality()
+        return self.assignment()
+
+    def assignment(self):
+        expr = self.equality()
+        print(f"in assignment: {expr}", file=sys.stderr)
+        if self.match(TokenType.EQUAL):
+            equals = self.previous()
+            # assignment is right associative, we instead recursively call assignment to parse the rhs
+            value = self.assignment()
+
+            # the lhs can be a complex expression, ie.
+            #  newPoint(x + 2, 0).y = 3;
+            # The lhs can very well be a valid expression, ie. just
+            #  newPoint(x + 2, 0).y
+            # So we parse the lhs as an expression and then after the fact product a syntax tree
+            #  that turns it into an assignment target.
+            # If the lhs isn't a valid assignment target, then we'll fail with syntax error.
+            #   ie. such as `a + b = c;`
+            if isinstance(expr, Variable):
+                name = expr.name
+                print(f"in assignment: {name}, {value}", file=sys.stderr)
+                return Assignment(name, value)
+            raise create_error(equals, "Invalid assignment target.")
+        return expr
 
     def equality(self):
         expr = self.comparison()
@@ -198,4 +222,8 @@ class Parser:
         if self.check(type=type):
             return self.advance()
         tok = self.previous() if self.is_at_end() else self.peek()
+        # print(
+        #     f"tok: {tok}, current: {self.current}, peek: {self.peek()}, previous: {self.previous()}",
+        #     file=sys.stderr,
+        # )
         raise create_error(tok, msg)
