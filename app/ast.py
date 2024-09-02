@@ -1,5 +1,5 @@
 from app.scanner import Token
-from typing import Any
+from typing import Any, List
 
 
 class Expr:
@@ -24,6 +24,14 @@ class VariableDeclaration(Declaration):
 class Stmt:
     def accept(self, visitor):
         return visitor.visit(self)
+
+
+class Block(Stmt):
+    def __init__(self, statements: List[Stmt]):
+        self.statements = statements
+
+    def accept(self, visitor):
+        return visitor.visitBlockStatement(self)
 
 
 class Expression(Stmt):

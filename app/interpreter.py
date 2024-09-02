@@ -11,6 +11,7 @@ from app.ast import (
     Variable,
     VariableDeclaration,
     Assignment,
+    Block,
 )
 from app.scanner import TokenType
 import sys
@@ -54,6 +55,8 @@ class Interpreter:
             return self.visitExpressionStatement(stmt)
         elif isinstance(stmt, VariableDeclaration):
             return self.visitVariableDeclaration(stmt)
+        elif isinstance(stmt, Block):
+            return self.visitBlockStatement(stmt)
         else:
             raise ValueError(f"Unexpected statement type: {type(stmt)}")
 
@@ -92,6 +95,19 @@ class Interpreter:
             return self.visitPrintStatement(expr)
         else:
             raise ValueError(f"Unexpected expression type: {type(expr)}")
+
+    def visitBlockStatement(self, stmt: Block):
+        self.executeBlock(stmt.statements, Environment(self.environment))
+        return None
+
+    def executeBlock(self, statements: list[Stmt], environment: Environment):
+        previous = self.environment
+        try:
+            self.environment = environment
+            for stmt in statements:
+                self.evaluate(stmt)
+        finally:
+            self.environment = previous
 
     def visitLiteralExpression(self, expr: Literal):
         return expr.value

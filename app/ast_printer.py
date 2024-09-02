@@ -9,6 +9,7 @@ from app.ast import (
     Expression,
     VariableDeclaration,
     Print,
+    Block,
 )
 from app.utils import stringify
 
@@ -39,6 +40,8 @@ class AstPrinter:
             return self.visitVariableDeclaration(expression)
         elif isinstance(expression, Print):
             return self.visitPrintStatement(expression)
+        elif isinstance(expression, Block):
+            return self.visitBlockStatement(expression)
         else:
             raise ValueError(f"Unexpected expression type: {type(expression)}")
 
@@ -86,3 +89,6 @@ class AstPrinter:
             else:
                 return "false"
         return f"{expression.value}"
+
+    def visitBlockStatement(self, stmt: Block):
+        return f"(block {[self.print(stmt) for stmt in stmt.statements]})"
